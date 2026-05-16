@@ -1,6 +1,6 @@
 # ADR-001: Technology Stack Selection
 
-**Date:** 2026-05-16  
+**Date:** 2026-05-16
 **Status:** Accepted
 
 ## Context
