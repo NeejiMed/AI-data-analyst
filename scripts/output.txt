@@ -1,0 +1,96 @@
+=== Sales Trend Analysis ===
+2026-05-17 15:45:32 [info     ]  running sales trends analysis end_date=datetime.datetime(2026, 6, 30, 0, 0) start_date=datetime.datetime(2025, 1, 1, 0, 0)
+2026-05-17 15:45:32 [info     ] Computing revenue KPIs         end_date=datetime.datetime(2026, 6, 30, 0, 0) start_date=datetime.datetime(2025, 1, 1, 0, 0)
+2026-05-17 15:45:32,620 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-05-17 15:45:32,628 INFO sqlalchemy.engine.Engine SELECT sum(orders.total_amount) AS revenue, count(orders.id) AS orders, count(distinct(orders.customer_id)) AS customers
+FROM orders
+WHERE orders.order_date >= ? AND orders.order_date <= ? AND orders.status = ?
+ LIMIT ? OFFSET ?
+2026-05-17 15:45:32,628 INFO sqlalchemy.engine.Engine [generated in 0.00018s] ('2025-01-01 00:00:00.000000', '2026-06-30 00:00:00.000000', 'completed', 1, 0)
+2026-05-17 15:45:32,630 INFO sqlalchemy.engine.Engine SELECT count(orders.id) AS count_1
+FROM orders
+WHERE orders.order_date >= ? AND orders.order_date <= ? AND orders.status = ?
+2026-05-17 15:45:32,630 INFO sqlalchemy.engine.Engine [generated in 0.00014s] ('2025-01-01 00:00:00.000000', '2026-06-30 00:00:00.000000', 'refunded')
+2026-05-17 15:45:32,632 INFO sqlalchemy.engine.Engine SELECT sum(products.cost_price * order_items.quantity) AS total_cost
+FROM products JOIN order_items ON products.id = order_items.product_id JOIN orders ON orders.id = order_items.order_id
+WHERE orders.order_date >= ? AND orders.order_date <= ? AND orders.status = ?
+ LIMIT ? OFFSET ?
+2026-05-17 15:45:32,632 INFO sqlalchemy.engine.Engine [generated in 0.00013s] ('2025-01-01 00:00:00.000000', '2026-06-30 00:00:00.000000', 'completed', 1, 0)
+2026-05-17 15:45:32 [info     ] computing monthly trends
+2026-05-17 15:45:32,637 INFO sqlalchemy.engine.Engine SELECT CAST(STRFTIME('%Y', orders.order_date) AS INTEGER) AS year, CAST(STRFTIME('%m', orders.order_date) AS INTEGER) AS month, sum(orders.total_amount) AS total_revenue, count(orders.id) AS total_orders, avg(orders.total_amount) AS aov
+FROM orders
+WHERE orders.order_date >= ? AND orders.order_date <= ? AND orders.status = ? GROUP BY year, month ORDER BY year, month
+2026-05-17 15:45:32,637 INFO sqlalchemy.engine.Engine [generated in 0.00014s] ('2025-01-01 00:00:00.000000', '2026-06-30 00:00:00.000000', 'completed')
+2026-05-17 15:45:32 [info     ] computing quarterly trends
+2026-05-17 15:45:32,643 INFO sqlalchemy.engine.Engine SELECT CAST(STRFTIME('%Y', orders.order_date) AS INTEGER) AS year, ceil(CAST(STRFTIME('%m', orders.order_date) AS INTEGER) / (? + 0.0)) AS quarter, sum(orders.total_amount) AS total_revenue, count(orders.id) AS total_orders
+FROM orders
+WHERE orders.order_date >= ? AND orders.order_date <= ? AND orders.status = ? GROUP BY year, quarter ORDER BY year, quarter
+2026-05-17 15:45:32,643 INFO sqlalchemy.engine.Engine [generated in 0.00012s] (3, '2025-01-01 00:00:00.000000', '2026-06-30 00:00:00.000000', 'completed')
+2026-05-17 15:45:32,648 INFO sqlalchemy.engine.Engine SELECT orders.region AS orders_region, sum(orders.total_amount) AS revenue, count(orders.id) AS orders, avg(orders.total_amount) AS aov
+FROM orders
+WHERE orders.order_date >= ? AND orders.order_date <= ? AND orders.status = ? GROUP BY orders.region
+2026-05-17 15:45:32,648 INFO sqlalchemy.engine.Engine [generated in 0.00011s] ('2025-01-01 00:00:00.000000', '2026-06-30 00:00:00.000000', 'completed')
+2026-05-17 15:45:32 [info     ] Detecting revenue anomalies    z_threshold=1.5
+2026-05-17 15:45:32 [info     ] Anomaly detection complete     total_anomalies=2 total_periods=18
+## Analytics Report: Sales Trends Analysis
+Period: 2025-01-01 to 2026-06-30
+
+### Revenue KPIs
+- Total Revenue: $7,180,376.02
+- Total Orders: 4003
+- Average Order Value: $1,793.75
+- Gross Profit: $5,874,211.02
+- Gross Margin: 81.81%
+- Refund Rate: 25.43%
+
+### Regional breakdown
+- East: $1,957,453.82 (27.26% share)1056 orders
+- North: $1,922,362.33 (26.77% share)1073 orders
+- West: $1,779,708.78 (24.79% share)995 orders
+- South: $1,520,851.09 (21.18% share)879 orders
+
+### Detected Anomalies
+- [HIGH] Oct 2025: spike of 114.0% vs expected $398,909.78
+- [LOW] Dec 2025: spike of 79.8% vs expected $398,909.78
+
+### Quarterly Trends
+- Q1 2025: $1,165,300.02 (baseline)
+- Q2 2025: $847,756.61 (-27.2%)
+- Q3 2025: $1,138,203.02 (+34.3%)
+- Q4 2025: $2,199,442.58 (+93.2%)
+- Q1 2026: $1,106,131.91 (-49.7%)
+- Q2 2026: $723,541.88 (-34.6%)
+
+
+=== Anomalies Detected ===
+  Oct 2025: spike (high) - 113.98% from expected
+  Dec 2025: spike (low) - 79.84% from expected
+
+=== Customer Segmentation ===
+2026-05-17 15:45:32 [info     ]  running customer segmentation analysis reference_date=datetime.datetime(2026, 6, 30, 0, 0)
+2026-05-17 15:45:32 [info     ] Computing RFM segments         reference_date=datetime.datetime(2026, 6, 30, 0, 0)
+2026-05-17 15:45:32,651 INFO sqlalchemy.engine.Engine SELECT orders.customer_id AS orders_customer_id, max(orders.order_date) AS last_order_date, count(orders.id) AS frequency, sum(orders.total_amount) AS monetary
+FROM orders
+WHERE orders.status = ? GROUP BY orders.customer_id
+2026-05-17 15:45:32,651 INFO sqlalchemy.engine.Engine [generated in 0.00010s] ('completed',)
+2026-05-17 15:45:32 [info     ] Computing revenue KPIs         end_date=datetime.datetime(2026, 6, 30, 0, 0) start_date=datetime.datetime(2025, 6, 1, 0, 0)
+2026-05-17 15:45:32,659 INFO sqlalchemy.engine.Engine SELECT sum(orders.total_amount) AS revenue, count(orders.id) AS orders, count(distinct(orders.customer_id)) AS customers
+FROM orders
+WHERE orders.order_date >= ? AND orders.order_date <= ? AND orders.status = ?
+ LIMIT ? OFFSET ?
+2026-05-17 15:45:32,659 INFO sqlalchemy.engine.Engine [cached since 0.03152s ago] ('2025-06-01 00:00:00.000000', '2026-06-30 00:00:00.000000', 'completed', 1, 0)
+2026-05-17 15:45:32,660 INFO sqlalchemy.engine.Engine SELECT count(orders.id) AS count_1
+FROM orders
+WHERE orders.order_date >= ? AND orders.order_date <= ? AND orders.status = ?
+2026-05-17 15:45:32,660 INFO sqlalchemy.engine.Engine [cached since 0.03004s ago] ('2025-06-01 00:00:00.000000', '2026-06-30 00:00:00.000000', 'refunded')
+2026-05-17 15:45:32,661 INFO sqlalchemy.engine.Engine SELECT sum(products.cost_price * order_items.quantity) AS total_cost
+FROM products JOIN order_items ON products.id = order_items.product_id JOIN orders ON orders.id = order_items.order_id
+WHERE orders.order_date >= ? AND orders.order_date <= ? AND orders.status = ?
+ LIMIT ? OFFSET ?
+2026-05-17 15:45:32,661 INFO sqlalchemy.engine.Engine [cached since 0.02904s ago] ('2025-06-01 00:00:00.000000', '2026-06-30 00:00:00.000000', 'completed', 1, 0)
+  Champions: 39 customers - High value, recent, frequent buyers. Reward them.
+  Loyal: 36 customers - Regular buyers with solid spend. Upsell opportunities.
+  Promising: 43 customers - Recent buyers with growth potential.
+  At Risk: 21 customers - Previously active, now disengaged. Re-engage urgently.
+  Lost: 11 customers - Long inactive. Win-back campaign needed.
+2026-05-17 15:45:32,664 INFO sqlalchemy.engine.Engine ROLLBACK
