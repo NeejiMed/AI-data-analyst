@@ -46,3 +46,6 @@ pytest-asyncio==0.24.0
 pytest-cov==5.0.0
 ruff==0.6.5
 pre-commit==3.8.0
+
+# Report generation
+reportlab==4.2.2
