@@ -28,45 +28,49 @@ SYSTEM_SQL_ASSISTANT = """You are a precise SQL generation assistant.
 You write safe, read-only SELECT queries based on a given database schema.
 You never use DROP, DELETE, UPDATE, INSERT, or any data-modifying statements."""
 
-def build_insights_prompt(analytics_context: str, user_question: str) -> list[dict]:
+def build_insights_prompt(analytics_context: str, user_question: str, rag_context: str="") -> list[dict]:
     """
     Build the message list for insights generation.
 
     args:
         analystics_context: serialized AnalyticsResult.to_llm_context()
         user_question: the original business question from the user, e.g. "What are the key trends and anomalies in our sales data for the last quarter?"
+        rag_context: relevant context retrieved from the RAG system
 
     returns:
     OpenAI-format messages list
     """
+    rag_section = f"\n**Business Domain Context:**\n{rag_context}\n" \
+        if rag_context else ""
+
     return [
         {"role": "system", "content": SYSTEM_ANALYST},
         {
             "role": "user",
-            "content": f"""Based on the following analytics data, answer this question:
+            "content": f"""Based on the following data, answer this question:
 
-            **Business Question**: {user_question}
-
-            **Analytics Data**:
+            **Business Question:** {user_question}
+            {rag_section}
+            **Analytics Data:**
             {analytics_context}
 
-            Respond with a json object matching this exact structure:
+            Respond with a JSON object matching this exact structure:
             {{
                 "executive_summary": "3-4 sentence summary",
                 "key_insights": [
                     {{
                         "title": "insight headline",
-                        "explanation": "2-3 sentence business explanation",
+                        "explanation": "2-3 sentence explanation",
                         "severity": "info|warning|critical",
                         "recommendation": "specific action to take"
-                    }},
+                    }}
                 ],
                 "positive_signals": ["signal 1", "signal 2"],
                 "risk_factors": ["risk 1", "risk 2"],
                 "recommended_actions": ["action 1", "action 2", "action 3"]
             }}
 
-            Base every insight strictly on the data provided. Do not add numbers not present above.""",
+            Base every insight strictly on the provided data. Do not add numbers not present above.""",
         },
     ]
 
