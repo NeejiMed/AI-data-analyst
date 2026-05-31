@@ -55,3 +55,8 @@ chroma_db/
 data/*.db
 data/*.sqlite
 !data/.gitkeep
+
+# Report outputs
+outputs/reports/*.pdf
+outputs/reports/*.md
+!outputs/.gitkeep
