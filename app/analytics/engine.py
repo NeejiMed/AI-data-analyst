@@ -129,7 +129,7 @@ class AnalyticsEngine:
         end_date: datetime
     ) -> AnalyticsResult:
 
-        logger.info(" running sales trends analysis", start_date=start_date, end_date=end_date)
+        logger.info("Workflow_running_sales_trends_analysis", start_date=start_date, end_date=end_date)
 
         kpis = compute_revenue_kpis(self.db, start_date, end_date)
         monthly = compute_monthly_trends(self.db, start_date, end_date)
@@ -159,7 +159,7 @@ class AnalyticsEngine:
         self,
         reference_date: datetime
     ) -> AnalyticsResult:
-        logger.info(" running customer segmentation analysis", reference_date=reference_date)
+        logger.info("Workflow_running_customer_segmentation_analysis", reference_date=reference_date)
 
         segments = compute_rfm_segments(self.db, reference_date)
         kpis = compute_revenue_kpis(
