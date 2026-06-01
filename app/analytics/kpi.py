@@ -42,7 +42,7 @@ def compute_revenue_kpis(
     """
     Compute revenue-related KPIs for a given time period.
     """
-    logger.info("Computing revenue KPIs", start_date=start_date, end_date=end_date)
+    logger.info("Computing_revenue_KPIs", start_date=start_date, end_date=end_date)
 
     base_filter = and_(
         Order.order_date >= start_date,

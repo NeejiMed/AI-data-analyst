@@ -36,6 +36,8 @@ data/raw/
 data/processed/
 *.pkl
 *.parquet
+data/*.db-shm
+data/*.db-wal
 
 # Logs
 logs/

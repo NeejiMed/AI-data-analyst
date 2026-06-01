@@ -23,7 +23,7 @@ class ReportBuilder:
             executive_summary: str = ""
     ) -> Report:
         """Build a sales trend report from analytics results and insights."""
-        logger.info("Building sales trend report", result=result, insights=insights)
+        logger.info("Building_sales_trend_report", result=result, insights=insights)
 
         report = Report(
             title="Sales trend analysis report",
@@ -129,7 +129,7 @@ class ReportBuilder:
             content=insights.recommended_actions
         ))
 
-        logger.info("Report building complete", sections=len(report.sections), report_type=report.report_type)
+        logger.info("Report_building_complete", sections=len(report.sections), report_type=report.report_type)
         return report
 
     def build_segmentation_report(

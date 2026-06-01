@@ -96,7 +96,7 @@ def revenue_trend_chart(
         **LAYOUT_DEFAULTS
     )
 
-    logger.info("Revenue trend chart generated", type="revenue_trend")
+    logger.info("Revenue_trend_chart_generated", type="revenue_trend")
     return fig
 
 def regional_revenue_chart(
@@ -212,7 +212,7 @@ def quarterly_trend_chart(
         secondary_y=True,
     )
 
-    logger.info("Quarterly trend chart generated", type="quarterly_trend")
+    logger.info("Quarterly_trend_chart_generated", type="quarterly_trend")
     return fig
 
 def customer_segment_chart(segments: list) -> go.Figure:
