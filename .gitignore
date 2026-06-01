@@ -60,3 +60,8 @@ data/*.sqlite
 outputs/reports/*.pdf
 outputs/reports/*.md
 !outputs/.gitkeep
+
+# Chart outputs
+outputs/charts/*.png
+outputs/charts/*.html
+!outputs/charts/.gitkeep
