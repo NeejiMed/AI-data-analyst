@@ -1,7 +1,9 @@
 # Python
 __pycache__/
+__pycache__
 *.py[cod]
 *.pyo
+*.pyc
 .Python
 *.egg-info/
 dist/
