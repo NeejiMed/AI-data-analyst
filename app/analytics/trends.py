@@ -45,7 +45,7 @@ def compute_monthly_trends(
     Compute monthly trends.
     Flags months where growth deviates significantly from the mean.
     """
-    logger.info("computing monthly trends")
+    logger.info("computing_monthly_trends")
 
     results = db.query(
         extract('year', Order.order_date).label('year'),
@@ -100,7 +100,7 @@ def compute_quarterly_trends(
     """
     Compute quarterly trends.
     """
-    logger.info("computing quarterly trends")
+    logger.info("computing_quarterly_trends")
 
     results = db.query(
         extract('year', Order.order_date).label('year'),

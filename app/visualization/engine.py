@@ -33,7 +33,7 @@ class VisualizationEngine:
             fig,
             filename: str,
             save_html: bool = True,
-            save_png: bool = True
+            save_png: bool = False
     ) -> dict[str, str]:
         """
         Save a Plotly figure as HTML and/or PNG, returning the file paths.
@@ -55,9 +55,9 @@ class VisualizationEngine:
                 paths["png"] = png_path
             except Exception as e:
                 logger.warning(
-                    "png_export_failed",
+                    "png_export_skipped",
+                    filename=filename,
                     error=str(e),
-                    hint="Install kaleido: pip install kaleido"
                 )
 
         return paths

@@ -37,7 +37,7 @@ def compute_rfm_segments(
     - At Risk: used to buy often but haven't recently
     - Lost: haven't bought in a long time
     """
-    logger.info("Computing RFM segments", reference_date=reference_date)
+    logger.info("Computing_RFM_segments", reference_date=reference_date)
 
     results = db.query(
         Order.customer_id,

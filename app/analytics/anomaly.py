@@ -33,7 +33,7 @@ def detect_revenue_anomalies(
     Returns:
         List of detected anomalies with severity and direction
     """
-    logger.info("Detecting revenue anomalies", z_threshold=z_threshold)
+    logger.info("Detecting_revenue_anomalies", z_threshold=z_threshold)
 
     if len(monthly_revenues) < 4:
         logger.warning("Not enough data points for reliable anomaly detection")
@@ -73,7 +73,7 @@ def detect_revenue_anomalies(
         ))
 
     logger.info(
-        "Anomaly detection complete",
+        "Anomaly_detection_complete",
         total_periods=len(monthly_revenues),
         total_anomalies=len(anomalies)
     )
