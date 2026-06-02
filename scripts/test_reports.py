@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from datetime import datetime  # noqa: E402
 
 from app.analytics.engine import AnalyticsEngine  # noqa: E402
-from app.data.database import SessionLocal  # noqa: E402
+from app.data.database import session_local  # noqa: E402
 from app.llm.client import call_llm  # noqa: E402
 from app.llm.parser import parse_insights_response, parse_text_response  # noqa: E402
 from app.llm.prompts import build_insights_prompt, build_summary_prompt  # noqa: E402
@@ -22,7 +22,7 @@ print("=" * 60)
 print("REPORT GENERATION ENGINE TEST")
 print("=" * 60)
 
-db = SessionLocal()
+db = session_local()
 analytics = AnalyticsEngine(db)
 rag = RAGPipeline(auto_ingest=False)
 builder = ReportBuilder()

@@ -10,9 +10,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.agents.query_validator import QueryValidationError, validate_sql
 from app.agents.sql_agent import SQLAgent
-from app.data.database import SessionLocal
+from app.data.database import session_local
 
-db = SessionLocal()
+db = session_local()
 agent = SQLAgent(db)
 
 # ── Test 1: Business questions ──────────────────────────────

@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
 
-from app.data.database import Base, SessionLocal, engine
+from app.data.database import Base, engine, session_local
 from app.data.models.business import Customer, Order, OrderItem, Product, SalesMetric
 
 random.seed(42)  # for reproducibility
@@ -258,7 +258,7 @@ def main():
     print("Starting data seeding...")
     create_tables()
 
-    db: Session = SessionLocal()
+    db: Session = session_local()
     try:
         seed_products(db)
         customers = seed_customers(db)

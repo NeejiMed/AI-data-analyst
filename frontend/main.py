@@ -40,9 +40,9 @@ if "last_response" not in st.session_state:
 if "pending_question" not in st.session_state:
     st.session_state.pending_question = None
 if "db" not in st.session_state:
-    from app.data.database import SessionLocal  # noqa: E402
+    from app.data.database import session_local  # noqa: E402
 
-    st.session_state.db = SessionLocal()
+    st.session_state.db = session_local()
 if "workflow" not in st.session_state:
     from app.agents.workflow import AnalyticsWorkflow  # noqa: E402
 

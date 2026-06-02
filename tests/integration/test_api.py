@@ -1,23 +1,24 @@
 """Integration tests for the FastAPI endpoints."""
-
-from unittest.mock import MagicMock, patch
+import os
 
 import pytest
-from fastapi.testclient import TestClient
+
+os.environ.setdefault("DATABASE_URL", "sqlite:///./data/test.db")
+os.environ.setdefault("GROQ_API_KEY", "test-key")
+os.environ.setdefault("SECRET_KEY", "test-secret")
+
+from fastapi.testclient import TestClient  # noqa: E402
 
 
 @pytest.fixture
 def client():
-    """Create a test client with mocked dependencies."""
-    mock_settings = MagicMock()
-    mock_settings.groq_api_key = "test-key"
-    with patch("app.core.config.get_settings", return_value=mock_settings):
-        from app.main import app
-
-        return TestClient(app)
+    """Create a test client."""
+    from app.main import app
+    return TestClient(app)
 
 
 class TestHealthEndpoint:
+
     def test_health_returns_200(self, client):
         response = client.get("/health")
         assert response.status_code == 200
@@ -35,6 +36,7 @@ class TestHealthEndpoint:
 
 
 class TestMetricsEndpoint:
+
     def test_metrics_returns_200(self, client):
         response = client.get("/metrics")
         assert response.status_code == 200
@@ -48,6 +50,7 @@ class TestMetricsEndpoint:
 
 
 class TestRootEndpoint:
+
     def test_root_returns_200(self, client):
         response = client.get("/")
         assert response.status_code == 200
