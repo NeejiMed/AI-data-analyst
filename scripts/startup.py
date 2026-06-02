@@ -20,6 +20,15 @@ logger = structlog.get_logger()
 def run_startup():
     logger.info("production_startup_begin")
 
+    # Skip heavy initialization in test/CI environment
+    if os.environ.get("APP_ENV") == "test":
+        logger.info("test_environment_skipping_seed_and_rag")
+        from app.data.database import Base, get_engine
+        from app.data.models import business  # noqa: F401
+        Base.metadata.create_all(bind=get_engine())
+        logger.info("production_startup_complete")
+        return
+
     # Step 1: Initialize the database tables
     logger.info("initializing_database")
     from app.data.database import (  # Import Base to ensure all models are registered
