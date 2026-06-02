@@ -2,6 +2,8 @@
 LLM client — wraps the Groq API using the OpenAI-compatible interface.
 Handles retries, timeouts, and error normalization.
 """
+import time
+
 import structlog
 from openai import OpenAI
 from tenacity import (
@@ -52,6 +54,7 @@ def call_llm(
          Raw string response from the model
     """
     client = get_llm_client()
+    _start = time.time()
 
     logger.info(
         "llm_call_start",
@@ -74,6 +77,16 @@ def call_llm(
 
     content = response.choices[0].message.content
     usage = response.usage
+
+    # Record metrics
+    from app.core.observability.metrics import record_llm_call
+    record_llm_call(
+        model=settings.llm_model,
+        prompt_tokens=usage.prompt_tokens,
+        completion_tokens=usage.completion_tokens,
+        latency_ms=int((time.time() - _start) * 1000),
+        success=True,
+    )
 
     logger.info(
         "llm_call_complete",
