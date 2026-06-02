@@ -93,6 +93,6 @@ jobs:
             -e DATABASE_URL=sqlite:///./data/test.db \
             -e CHROMA_PERSIST_DIR=./chroma_db \
             ai-data-analyst:ci
-          sleep 5
+          sleep 30
           curl -f http://localhost:8000/health || exit 1
           docker stop test-container
