@@ -3,6 +3,7 @@ Production startup script for the application.
 This runs database initialization and knowledge base ingestion before starting the server.
 Idempotent, so it can be safely run multiple times without causing issues.
 """
+
 import os
 import sys
 
@@ -15,6 +16,7 @@ from app.core.logging import configure_logging
 configure_logging()
 logger = structlog.get_logger()
 
+
 def run_startup():
     logger.info("production_startup_begin")
 
@@ -24,7 +26,8 @@ def run_startup():
         Base,
         get_engine,
     )
-    Base.metadata.create_all(bind=get_engine()) # Create tables if they don't exist
+
+    Base.metadata.create_all(bind=get_engine())  # Create tables if they don't exist
     logger.info("database_initialized")
 
     # Step 2: Seed data if database is empty
@@ -40,17 +43,20 @@ def run_startup():
         Order,  # Import Order model to check if the database is empty
     )
 
-    session = sessionmaker(bind=get_engine()) # Create a session factory
-    db = session() # Create a database session
-    order_count = db.query(func.count(Order.id)).scalar() # Count the number of orders in the database
-    db.close() # Close the database session
+    session = sessionmaker(bind=get_engine())  # Create a session factory
+    db = session()  # Create a database session
+    order_count = db.query(
+        func.count(Order.id)
+    ).scalar()  # Count the number of orders in the database
+    db.close()  # Close the database session
 
     if order_count == 0:
         logger.info("database_empty_seeding_data")
         from scripts.seed_data import (
             main as seed_main,  # Import the main function from the seed_data script
         )
-        seed_main() # Run the data seeding function
+
+        seed_main()  # Run the data seeding function
     else:
         logger.info("database_not_empty_skipping_seeding", order_count=order_count)
 
@@ -59,10 +65,14 @@ def run_startup():
     from app.rag.retrieval import (
         ingest_knowledge_base,  # Import the function to ingest the knowledge base
     )
-    count = ingest_knowledge_base() # Ingest the knowledge base and get the count of ingested items
+
+    count = (
+        ingest_knowledge_base()
+    )  # Ingest the knowledge base and get the count of ingested items
     logger.info("rag_initialized", chunks=count)
 
     logger.info("production_startup_complete")
+
 
 if __name__ == "__main__":
     run_startup()
