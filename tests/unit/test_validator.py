@@ -1,11 +1,11 @@
 """Unit tests for the SQL query validator."""
+
 import pytest
 
 from app.agents.query_validator import QueryValidationError, validate_sql
 
 
 class TestSQLValidator:
-
     def test_valid_select_passes(self):
         sql = "SELECT * FROM orders"
         result = validate_sql(sql)
@@ -33,9 +33,7 @@ class TestSQLValidator:
 
     def test_union_injection_blocked(self):
         with pytest.raises(QueryValidationError, match="UNION"):
-            validate_sql(
-                "SELECT * FROM orders UNION SELECT * FROM customers"
-            )
+            validate_sql("SELECT * FROM orders UNION SELECT * FROM customers")
 
     def test_stacked_query_blocked(self):
         with pytest.raises(QueryValidationError):

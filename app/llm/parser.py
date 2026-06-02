@@ -2,6 +2,7 @@
 Parses and validates raw LLM responses into structured Pydantic objects.
 This is the defensive layer between raw LLM output and application logic.
 """
+
 import json
 import re
 
@@ -11,6 +12,7 @@ from pydantic import ValidationError
 from app.llm.schemas import AnalyticsInsights
 
 logger = structlog.get_logger()
+
 
 def extract_json_from_response(raw: str) -> dict:
     """
@@ -24,8 +26,9 @@ def extract_json_from_response(raw: str) -> dict:
     try:
         return json.loads(cleaned)
     except json.JSONDecodeError as e:
-        logger.error("json_parse_failed", error= str(e), raw_preview=raw[:200])
+        logger.error("json_parse_failed", error=str(e), raw_preview=raw[:200])
         raise ValueError(f"Failed to parse JSON from LLM response: {e}") from e
+
 
 def parse_insights_response(raw: str) -> AnalyticsInsights:
     """
@@ -38,6 +41,7 @@ def parse_insights_response(raw: str) -> AnalyticsInsights:
     except ValidationError as e:
         logger.error("insights_validation_failed", error=str(e))
         raise ValueError(f"LLM response failed validation: {e}") from e
+
 
 def parse_text_response(raw: str) -> str:
     """

@@ -1,4 +1,5 @@
 """Integration tests for the FastAPI endpoints."""
+
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -12,11 +13,11 @@ def client():
     mock_settings.groq_api_key = "test-key"
     with patch("app.core.config.get_settings", return_value=mock_settings):
         from app.main import app
+
         return TestClient(app)
 
 
 class TestHealthEndpoint:
-
     def test_health_returns_200(self, client):
         response = client.get("/health")
         assert response.status_code == 200
@@ -34,7 +35,6 @@ class TestHealthEndpoint:
 
 
 class TestMetricsEndpoint:
-
     def test_metrics_returns_200(self, client):
         response = client.get("/metrics")
         assert response.status_code == 200
@@ -48,7 +48,6 @@ class TestMetricsEndpoint:
 
 
 class TestRootEndpoint:
-
     def test_root_returns_200(self, client):
         response = client.get("/")
         assert response.status_code == 200

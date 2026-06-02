@@ -12,6 +12,7 @@ Architecture:
 The LLM never executes SQL directly.
 The validator never skips.
 """
+
 import re
 from dataclasses import dataclass, field
 
@@ -26,9 +27,11 @@ from app.llm.client import call_llm
 
 logger = structlog.get_logger()
 
+
 @dataclass
 class SQLResult:
     """Structured result from SQL Agent execution."""
+
     question: str
     generated_sql: str
     validated_sql: str
@@ -51,7 +54,7 @@ class SQLResult:
             f"SQL Query: {self.validated_sql}",
             f"Rows returned: {self.row_count}",
             "",
-            "Results:"
+            "Results:",
         ]
 
         # Show first 20 rows in context to avoid token overflow
@@ -67,6 +70,7 @@ class SQLResult:
 
         return "\n".join(lines)
 
+
 SQL_GENERATION_SYSTEM = """You are a precise SQL analyst. Your job is to write
 correct, efficient SQLite SELECT queries based on a user's business question
 and the provided database schema.
@@ -80,10 +84,8 @@ Rules you must follow without exception:
 - Write clean, readable SQL with proper indentation
 - Return ONLY the SQL query — no explanation, no markdown, no commentary"""
 
-def build_sql_prompt(
-        question: str,
-        schema_context: str
-) -> list[dict]:
+
+def build_sql_prompt(question: str, schema_context: str) -> list[dict]:
     return [
         {"role": "system", "content": SQL_GENERATION_SYSTEM},
         {
@@ -98,6 +100,7 @@ def build_sql_prompt(
         },
     ]
 
+
 class SQLAgent:
     """
     SQL generation and execution agent. Converts natural language questions into validated SQL queries, executes them.
@@ -105,7 +108,7 @@ class SQLAgent:
 
     def __init__(self, db: Session):
         self.db = db
-        self._schema_context : str | None = None
+        self._schema_context: str | None = None
 
     def _get_schema(self) -> str:
         """Lazy-load and cache schema context to avoid redundant database calls."""
@@ -144,7 +147,7 @@ class SQLAgent:
 
         # Step 1: Generate SQL
         try:
-            raw_sql =self.generate_sql(question)
+            raw_sql = self.generate_sql(question)
         except Exception as e:
             logger.error("sql_generation_failed", error=str(e))
             return SQLResult(
@@ -152,7 +155,7 @@ class SQLAgent:
                 generated_sql="",
                 validated_sql="",
                 error=f"SQL generation failed: {e}",
-                success=False
+                success=False,
             )
 
         # Step 2: Validate SQL (security layer)
@@ -165,13 +168,15 @@ class SQLAgent:
                 generated_sql=raw_sql,
                 validated_sql="",
                 error=f"Query blocked by safety validator: {e}",
-                success=False
+                success=False,
             )
 
         # Step 3: Execute SQL
         try:
             columns, rows = self.execute_query(validated_sql)
-            logger.info("sql_execution_success", row_count=len(rows), column_count=len(columns))
+            logger.info(
+                "sql_execution_success", row_count=len(rows), column_count=len(columns)
+            )
             return SQLResult(
                 question=question,
                 generated_sql=raw_sql,
@@ -179,7 +184,7 @@ class SQLAgent:
                 columns=columns,
                 rows=rows,
                 row_count=len(rows),
-                success=True
+                success=True,
             )
         except Exception as e:
             logger.error("sql_execution_failed", error=str(e))
@@ -188,5 +193,5 @@ class SQLAgent:
                 generated_sql=raw_sql,
                 validated_sql=validated_sql,
                 error=f"Query execution failed: {e}",
-                success=False
+                success=False,
             )

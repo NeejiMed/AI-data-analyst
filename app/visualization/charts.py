@@ -7,6 +7,7 @@ Design principles:
 - no side effects ( saving is handled by the engine, not the chart functions).
 - Consistent styling across charts (colors, fonts, layout) for a cohesive report appearance.
 """
+
 import plotly.graph_objects as go
 import structlog
 from plotly.subplots import make_subplots
@@ -33,9 +34,9 @@ LAYOUT_DEFAULTS = {
     "hoverlabel": {"bgcolor": "white", "font_size": 12},
 }
 
+
 def revenue_trend_chart(
-        monthly_trends: list,
-        title: str = "Monthly Revenue Trends"
+    monthly_trends: list, title: str = "Monthly Revenue Trends"
 ) -> go.Figure:
     """
     Line chart of monthly revenue with anomaly markers highlighted.
@@ -54,38 +55,49 @@ def revenue_trend_chart(
     fig = go.Figure()
 
     # Main revenue line
-    fig.add_trace(go.Scatter(
-        x=labels,
-        y=revenues,
-        mode="lines",
-        name="Revenue",
-        line={"color": COLORS["secondary"], "width": 2},
-        hovertemplate="<b>%{x}</b><br>Revenue: $%{y:,.2f}<extra></extra>"
-    ))
+    fig.add_trace(
+        go.Scatter(
+            x=labels,
+            y=revenues,
+            mode="lines",
+            name="Revenue",
+            line={"color": COLORS["secondary"], "width": 2},
+            hovertemplate="<b>%{x}</b><br>Revenue: $%{y:,.2f}<extra></extra>",
+        )
+    )
 
     # Normal data points
-    fig.add_trace(go.Scatter(
-        x=normal_x,
-        y=normal_y,
-        mode="markers",
-        name="Normal",
-        marker={"color": COLORS["secondary"], "size": 6},
-        hovertemplate="<b>%{x}</b><br>Revenue: $%{y:,.2f}<extra></extra>",
-    ))
+    fig.add_trace(
+        go.Scatter(
+            x=normal_x,
+            y=normal_y,
+            mode="markers",
+            name="Normal",
+            marker={"color": COLORS["secondary"], "size": 6},
+            hovertemplate="<b>%{x}</b><br>Revenue: $%{y:,.2f}<extra></extra>",
+        )
+    )
 
     # Anomaly data - highlighted in red
     if anomaly_x:
-        fig.add_trace(go.Scatter(
-            x=anomaly_x,
-            y=anomaly_y,
-            mode="markers",
-            name="Anomaly",
-            marker={"color": COLORS["danger"], "size": 12, "symbol": "diamond","line":{"color": "white", "width": 2}},
-            hovertemplate=(
-                "<b>%{x}</b><br>Revenue: $%{y:,.2f}"
-                "<br><b>ANOMALY DETECTED</b><extra></extra>"
+        fig.add_trace(
+            go.Scatter(
+                x=anomaly_x,
+                y=anomaly_y,
+                mode="markers",
+                name="Anomaly",
+                marker={
+                    "color": COLORS["danger"],
+                    "size": 12,
+                    "symbol": "diamond",
+                    "line": {"color": "white", "width": 2},
+                },
+                hovertemplate=(
+                    "<b>%{x}</b><br>Revenue: $%{y:,.2f}"
+                    "<br><b>ANOMALY DETECTED</b><extra></extra>"
+                ),
             )
-        ))
+        )
 
     fig.update_layout(
         title={"text": title, "font": {"size": 16}},
@@ -93,16 +105,14 @@ def revenue_trend_chart(
         yaxis_title="Revenue ($)",
         yaxis_tickformat="$,.0f",
         legend={"orientation": "h", "yanchor": "bottom", "y": 1.02},
-        **LAYOUT_DEFAULTS
+        **LAYOUT_DEFAULTS,
     )
 
     logger.info("Revenue_trend_chart_generated", type="revenue_trend")
     return fig
 
-def regional_revenue_chart(
-        regional_kpis: list,
-        chart_type: str = "bar"
-) -> go.Figure:
+
+def regional_revenue_chart(regional_kpis: list, chart_type: str = "bar") -> go.Figure:
     """
     Bar or pie chart showing revenue by region.
     Bar shows absolute values, pie shows market share.
@@ -111,47 +121,46 @@ def regional_revenue_chart(
     revenues = [k.total_revenue for k in regional_kpis]
 
     if chart_type == "pie":
-        fig = go.Figure(go.Pie(
-            labels=regions,
-            values=revenues,
-            marker_colors=COLORS["regions"],
-            textinfo="label+percent",
-            hovertemplate=(
-                "<b>%{label}</b><br>"
-                "Revenue: $%{value:,.2f}<br>"
-                "Share: %{percent}<extra></extra>"
+        fig = go.Figure(
+            go.Pie(
+                labels=regions,
+                values=revenues,
+                marker_colors=COLORS["regions"],
+                textinfo="label+percent",
+                hovertemplate=(
+                    "<b>%{label}</b><br>"
+                    "Revenue: $%{value:,.2f}<br>"
+                    "Share: %{percent}<extra></extra>"
+                ),
             )
-        ))
+        )
         fig.update_layout(
-            title={"text": "Revenue by Region", "font": {"size": 16}},
-            **LAYOUT_DEFAULTS
+            title={"text": "Revenue by Region", "font": {"size": 16}}, **LAYOUT_DEFAULTS
         )
     else:  # default to bar
-        fig = go.Figure(go.Bar(
-            x=regions,
-            y=revenues,
-            marker_color=COLORS["regions"],
-            text=[f"${r:,.0f}" for r in revenues],
-            textposition="outside",
-            hovertemplate=(
-                "<b>%{x}</b><br>"
-                "Revenue: $%{y:,.2f}<extra></extra>"
+        fig = go.Figure(
+            go.Bar(
+                x=regions,
+                y=revenues,
+                marker_color=COLORS["regions"],
+                text=[f"${r:,.0f}" for r in revenues],
+                textposition="outside",
+                hovertemplate=("<b>%{x}</b><br>" "Revenue: $%{y:,.2f}<extra></extra>"),
             )
-        ))
+        )
         fig.update_layout(
             title={"text": "Revenue by Region", "font": {"size": 16}},
             xaxis_title="Region",
             yaxis_title="Revenue ($)",
             yaxis_tickformat="$,.0f",
-            **LAYOUT_DEFAULTS
+            **LAYOUT_DEFAULTS,
         )
 
     logger.info("chart_created", type=f"regional_{chart_type}")
     return fig
 
-def quarterly_trend_chart(
-        quarterly_trends: list
-) -> go.Figure:
+
+def quarterly_trend_chart(quarterly_trends: list) -> go.Figure:
     """
     Combined bar & line chart showing quarterly revenue and growth rate.
     uses dual y-axes: revenue on left, growth rate on right.
@@ -173,11 +182,9 @@ def quarterly_trend_chart(
             name="Revenue",
             marker_color=COLORS["secondary"],
             opacity=0.8,
-            hovertemplate=(
-                "<b>%{x}</b><br>Revenue: $%{y:,.2f}<extra></extra>"
-            )
+            hovertemplate=("<b>%{x}</b><br>Revenue: $%{y:,.2f}<extra></extra>"),
         ),
-        secondary_y=False
+        secondary_y=False,
     )
 
     # Growth line
@@ -189,11 +196,9 @@ def quarterly_trend_chart(
             mode="lines+markers",
             line={"color": COLORS["warning"], "width": 2},
             marker={"size": 8},
-            hovertemplate=(
-                "<b>%{x}</b><br>Growth Rate: %{y:.1f}%<extra></extra>"
-            )
+            hovertemplate=("<b>%{x}</b><br>Growth Rate: %{y:.1f}%<extra></extra>"),
         ),
-        secondary_y=True
+        secondary_y=True,
     )
 
     fig.update_layout(
@@ -215,6 +220,7 @@ def quarterly_trend_chart(
     logger.info("Quarterly_trend_chart_generated", type="quarterly_trend")
     return fig
 
+
 def customer_segment_chart(segments: list) -> go.Figure:
     """
     Horizontal bar chart showing revenue of customer segments by count and revenue.
@@ -230,7 +236,8 @@ def customer_segment_chart(segments: list) -> go.Figure:
     revenues = [s.avg_revenue for s in segments]
 
     fig = make_subplots(
-        rows=1, cols=2,
+        rows=1,
+        cols=2,
         subplot_titles=("Customers by Segment", "Avg Revenue by Segment"),
     )
 
@@ -242,12 +249,11 @@ def customer_segment_chart(segments: list) -> go.Figure:
             marker_color=COLORS["segments"],
             text=counts,
             textposition="outside",
-            hovertemplate=(
-                "<b>%{y}</b><br>Customers: %{x}<extra></extra>"
-            ),
+            hovertemplate=("<b>%{y}</b><br>Customers: %{x}<extra></extra>"),
             name="Count",
         ),
-        row=1, col=1,
+        row=1,
+        col=1,
     )
 
     fig.add_trace(
@@ -258,12 +264,11 @@ def customer_segment_chart(segments: list) -> go.Figure:
             marker_color=COLORS["segments"],
             text=[f"${r:,.0f}" for r in revenues],
             textposition="outside",
-            hovertemplate=(
-                "<b>%{y}</b><br>Avg Revenue: $%{x:,.2f}<extra></extra>"
-            ),
+            hovertemplate=("<b>%{y}</b><br>Avg Revenue: $%{x:,.2f}<extra></extra>"),
             name="Avg Revenue",
         ),
-        row=1, col=2,
+        row=1,
+        col=2,
     )
 
     fig.update_layout(
@@ -275,74 +280,94 @@ def customer_segment_chart(segments: list) -> go.Figure:
     logger.info("chart_created", type="customer_segments")
     return fig
 
+
 def kpi_summary_chart(revenue_kpis) -> go.Figure:
     """
     KPI gauge/indicator summary chart.
     Shows key metrics as visual indicators with target comparisons.
     """
     fig = make_subplots(
-        rows=1, cols=3,
-        specs=[[
-            {"type": "indicator"},
-            {"type": "indicator"},
-            {"type": "indicator"},
-        ]],
+        rows=1,
+        cols=3,
+        specs=[
+            [
+                {"type": "indicator"},
+                {"type": "indicator"},
+                {"type": "indicator"},
+            ]
+        ],
     )
 
     # Gross margin gauge
-    fig.add_trace(go.Indicator(
-        mode="gauge+number+delta",
-        value=revenue_kpis.gross_margin_pct,
-        title={"text": "Gross Margin"},
-        number={"suffix": "%"},
-        delta={"reference": 75, "valueformat": ".1f"},
-        gauge={
-            "axis": {"range": [0, 100]},
-            "bar": {"color": COLORS["success"]},
-            "steps": [
-                {"range": [0, 60], "color": "#FADBD8"},
-                {"range": [60, 75], "color": "#FDEBD0"},
-                {"range": [75, 100], "color": "#D5F5E3"},
-            ],
-            "threshold": {
-                "line": {"color": COLORS["primary"], "width": 3},
-                "thickness": 0.75,
-                "value": 75,
+    fig.add_trace(
+        go.Indicator(
+            mode="gauge+number+delta",
+            value=revenue_kpis.gross_margin_pct,
+            title={"text": "Gross Margin"},
+            number={"suffix": "%"},
+            delta={"reference": 75, "valueformat": ".1f"},
+            gauge={
+                "axis": {"range": [0, 100]},
+                "bar": {"color": COLORS["success"]},
+                "steps": [
+                    {"range": [0, 60], "color": "#FADBD8"},
+                    {"range": [60, 75], "color": "#FDEBD0"},
+                    {"range": [75, 100], "color": "#D5F5E3"},
+                ],
+                "threshold": {
+                    "line": {"color": COLORS["primary"], "width": 3},
+                    "thickness": 0.75,
+                    "value": 75,
+                },
             },
-        },
-    ), row=1, col=1)
+        ),
+        row=1,
+        col=1,
+    )
 
     # Refund rate gauge
-    fig.add_trace(go.Indicator(
-        mode="gauge+number+delta",
-        value=revenue_kpis.refund_rate_pct,
-        title={"text": "Refund Rate"},
-        number={"suffix": "%"},
-        delta={"reference": 15, "valueformat": ".1f", "increasing": {"color": COLORS["danger"]}},
-        gauge={
-            "axis": {"range": [0, 50]},
-            "bar": {"color": COLORS["danger"]},
-            "steps": [
-                {"range": [0, 15], "color": "#D5F5E3"},
-                {"range": [15, 25], "color": "#FDEBD0"},
-                {"range": [25, 50], "color": "#FADBD8"},
-            ],
-            "threshold": {
-                "line": {"color": COLORS["primary"], "width": 3},
-                "thickness": 0.75,
-                "value": 15,
+    fig.add_trace(
+        go.Indicator(
+            mode="gauge+number+delta",
+            value=revenue_kpis.refund_rate_pct,
+            title={"text": "Refund Rate"},
+            number={"suffix": "%"},
+            delta={
+                "reference": 15,
+                "valueformat": ".1f",
+                "increasing": {"color": COLORS["danger"]},
             },
-        },
-    ), row=1, col=2)
+            gauge={
+                "axis": {"range": [0, 50]},
+                "bar": {"color": COLORS["danger"]},
+                "steps": [
+                    {"range": [0, 15], "color": "#D5F5E3"},
+                    {"range": [15, 25], "color": "#FDEBD0"},
+                    {"range": [25, 50], "color": "#FADBD8"},
+                ],
+                "threshold": {
+                    "line": {"color": COLORS["primary"], "width": 3},
+                    "thickness": 0.75,
+                    "value": 15,
+                },
+            },
+        ),
+        row=1,
+        col=2,
+    )
 
     # AOV indicator
-    fig.add_trace(go.Indicator(
-        mode="number+delta",
-        value=revenue_kpis.avg_order_value,
-        title={"text": "Avg Order Value"},
-        number={"prefix": "$", "valueformat": ",.2f"},
-        delta={"reference": 1500, "valueformat": ".0f"},
-    ), row=1, col=3)
+    fig.add_trace(
+        go.Indicator(
+            mode="number+delta",
+            value=revenue_kpis.avg_order_value,
+            title={"text": "Avg Order Value"},
+            number={"prefix": "$", "valueformat": ",.2f"},
+            delta={"reference": 1500, "valueformat": ".0f"},
+        ),
+        row=1,
+        col=3,
+    )
 
     fig.update_layout(
         title={"text": "KPI Dashboard", "font": {"size": 16}},

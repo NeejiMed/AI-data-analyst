@@ -1,4 +1,5 @@
 """Test the RAG pipeline — ingestion, retrieval, and LLM integration."""
+
 import os
 import sys
 from datetime import datetime
@@ -12,7 +13,7 @@ from app.rag.pipeline import RAGPipeline
 from app.rag.retrieval import ingest_knowledge_base
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.stdout.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding="utf-8")
 
 print("=" * 60)
 print("RAG PIPELINE TEST")
@@ -40,8 +41,10 @@ for query in test_queries:
     results = rag.retrieve(query, n_results=2)
     print(f"\n   Query: '{query}'")
     for r in results:
-        print(f"   >> [{r['score']:.2f}] {r['metadata']['section']}: "
-            f"{r['document'][:80]}...")
+        print(
+            f"   >> [{r['score']:.2f}] {r['metadata']['section']}: "
+            f"{r['document'][:80]}..."
+        )
 
 # Test 4: Full RAG + Analytics + LLM pipeline
 print("\n" + "=" * 60)

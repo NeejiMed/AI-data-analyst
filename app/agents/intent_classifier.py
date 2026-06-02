@@ -9,6 +9,7 @@ Example:
     "Show me refunds by region"        -> intent: sql_query
     "What happened in October?"        -> intent: anomaly_investigation
 """
+
 import json
 from enum import StrEnum
 
@@ -18,12 +19,14 @@ from app.llm.client import call_llm
 
 logger = structlog.get_logger()
 
+
 class QueryIntent(StrEnum):
     SALES_TREND = "sales_trend"
     SEGMENTATION = "segmentation"
     SQL_QUERY = "sql_query"
     ANOMALY_INVESTIGATION = "anomaly_investigation"
     GENERAL = "general"
+
 
 INTENT_SYSTEM = """You are a query intent classifier for a business analytics platform.
 Classify the user's question into exactly one category.
@@ -37,6 +40,7 @@ Categories:
 Respond with ONLY a JSON object with the following format:
 {"intent": "<category>", "confidence": <0-1 float>,"reasoning": "<one sentence>"}"""
 
+
 def classify_intent(question: str) -> tuple[QueryIntent, float, str]:
     """Classify the user's query intent using an LLM.
     Returns:
@@ -46,15 +50,12 @@ def classify_intent(question: str) -> tuple[QueryIntent, float, str]:
 
     messages = [
         {"role": "system", "content": INTENT_SYSTEM},
-        {"role": "user", "content": question}
+        {"role": "user", "content": question},
     ]
 
     try:
         raw = call_llm(
-            messages,
-            temperature=0.1,
-            max_tokens=100,
-            response_format="json"
+            messages, temperature=0.1, max_tokens=100, response_format="json"
         )
         data = json.loads(raw)
         intent_str = data.get("intent", "general")
@@ -62,7 +63,12 @@ def classify_intent(question: str) -> tuple[QueryIntent, float, str]:
         reasoning = data.get("reasoning", "")
 
         intent = QueryIntent(intent_str)
-        logger.info("Intent_classified", intent=intent, confidence=confidence,reasoning=reasoning)
+        logger.info(
+            "Intent_classified",
+            intent=intent,
+            confidence=confidence,
+            reasoning=reasoning,
+        )
         return intent, confidence, reasoning
 
     except Exception as e:

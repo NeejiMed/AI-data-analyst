@@ -1,6 +1,7 @@
 """
 Visualization engine for generating and saving chart sets from analytics results.
 """
+
 from pathlib import Path
 
 import structlog
@@ -18,6 +19,7 @@ logger = structlog.get_logger()
 
 OUTPUT_DIR = Path("outputs/charts")
 
+
 class VisualizationEngine:
     """
     Generates complete chart sets from AnalyticsResult objects.
@@ -29,11 +31,7 @@ class VisualizationEngine:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def _save_chart(
-            self,
-            fig,
-            filename: str,
-            save_html: bool = True,
-            save_png: bool = False
+        self, fig, filename: str, save_html: bool = True, save_png: bool = False
     ) -> dict[str, str]:
         """
         Save a Plotly figure as HTML and/or PNG, returning the file paths.
@@ -41,11 +39,7 @@ class VisualizationEngine:
         paths = {}
         if save_html:
             html_path = f"{self.output_dir}/{filename}.html"
-            fig.write_html(
-                html_path,
-                include_plotlyjs="cdn",
-                full_html=False
-            )
+            fig.write_html(html_path, include_plotlyjs="cdn", full_html=False)
             paths["html"] = html_path
 
         if save_png:
@@ -62,11 +56,7 @@ class VisualizationEngine:
 
         return paths
 
-    def generate_sales_charts(
-            self,
-            result: AnalyticsResult,
-            save: bool = True
-    ) -> dict:
+    def generate_sales_charts(self, result: AnalyticsResult, save: bool = True) -> dict:
         """
         Generate full chart set for a sales trend analysis result.
 
@@ -90,7 +80,9 @@ class VisualizationEngine:
             charts["regional_bar"] = {"figure": fig, "paths": paths}
 
             fig_pie = regional_revenue_chart(result.regional_kpis, "pie")
-            paths_pie = self._save_chart(fig_pie, "regional_revenue_pie") if save else {}
+            paths_pie = (
+                self._save_chart(fig_pie, "regional_revenue_pie") if save else {}
+            )
             charts["regional_pie"] = {"figure": fig_pie, "paths": paths_pie}
 
         # 3. Quarterly trend with growth rate
@@ -109,9 +101,7 @@ class VisualizationEngine:
         return charts
 
     def generate_segmentation_charts(
-            self,
-            result: AnalyticsResult,
-            save: bool = True
+        self, result: AnalyticsResult, save: bool = True
     ) -> dict:
         """
         Generate customer segmentation charts from an AnalyticsResult.

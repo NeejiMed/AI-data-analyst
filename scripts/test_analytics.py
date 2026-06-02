@@ -1,4 +1,5 @@
 """Verify the analytics engine produces correct results."""
+
 import os
 import sys
 
@@ -21,12 +22,12 @@ print(result.to_llm_context())
 
 print("\n=== Anomalies Detected ===")
 for a in result.anomalies:
-    print(f"  {a.period}: {a.direction} ({a.severity}) - {a.deviation_pct}% from expected")
+    print(
+        f"  {a.period}: {a.direction} ({a.severity}) - {a.deviation_pct}% from expected"
+    )
 
 print("\n=== Customer Segmentation ===")
-seg_result = engine.analyze_customer_segments(
-    reference_date=datetime(2026, 6, 30)
-)
+seg_result = engine.analyze_customer_segments(reference_date=datetime(2026, 6, 30))
 for s in seg_result.segments:
     print(f"  {s.segment_name}: {s.customer_count} customers - {s.description}")
 

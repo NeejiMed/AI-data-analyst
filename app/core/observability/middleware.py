@@ -3,6 +3,7 @@ FastAPI middleware for request/response logging.
 Every API request gets a unique request ID and is logged
 with timing, status, and metadata.
 """
+
 import time
 import uuid
 
@@ -11,6 +12,7 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
 logger = structlog.get_logger()
+
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
     """
@@ -34,7 +36,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             "request_start",
             method=request.method,
             path=request.url.path,
-            client_ip=request.client.host if request.client else "unknown"
+            client_ip=request.client.host if request.client else "unknown",
         )
         try:
             response = await call_next(request)
@@ -45,7 +47,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 method=request.method,
                 path=request.url.path,
                 status_code=response.status_code,
-                latency_ms=elapsed_ms
+                latency_ms=elapsed_ms,
             )
 
             # Add request ID to response headers for client-side tracing
@@ -59,7 +61,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 method=request.method,
                 path=request.url.path,
                 error=str(e),
-                latency_ms=elapsed_ms
+                latency_ms=elapsed_ms,
             )
             raise
         finally:

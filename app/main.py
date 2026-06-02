@@ -2,6 +2,7 @@
 AI Data Analyst - FastAPI Application
 Production-grade API with observability, health checks, and analytics.
 """
+
 from contextlib import asynccontextmanager
 
 import structlog

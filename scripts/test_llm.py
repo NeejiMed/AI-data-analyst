@@ -2,6 +2,7 @@
 Test the full analytics + LLM pipeline end to end.
 This is the first time the platform feels like an AI analyst.
 """
+
 import os
 import sys
 from datetime import datetime
@@ -10,7 +11,7 @@ from app.analytics.engine import AnalyticsEngine
 from app.data.database import SessionLocal
 from app.llm.insights import InsightsService
 
-sys.stdout.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding="utf-8")
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 db = SessionLocal()
