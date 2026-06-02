@@ -25,6 +25,7 @@ def run_startup():
         logger.info("test_environment_skipping_seed_and_rag")
         from app.data.database import Base, get_engine
         from app.data.models import business  # noqa: F401
+
         Base.metadata.create_all(bind=get_engine())
         logger.info("production_startup_complete")
         return
