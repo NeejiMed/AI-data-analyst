@@ -1,7 +1,9 @@
 # Python
 __pycache__/
+__pycache__
 *.py[cod]
 *.pyo
+*.pyc
 .Python
 *.egg-info/
 dist/
@@ -36,6 +38,8 @@ data/raw/
 data/processed/
 *.pkl
 *.parquet
+data/*.db-shm
+data/*.db-wal
 
 # Logs
 logs/
@@ -50,3 +54,18 @@ Thumbs.db
 
 # Chroma vector DB
 chroma_db/
+
+# SQLite databases in data directory
+data/*.db
+data/*.sqlite
+!data/.gitkeep
+
+# Report outputs
+outputs/reports/*.pdf
+outputs/reports/*.md
+!outputs/.gitkeep
+
+# Chart outputs
+outputs/charts/*.png
+outputs/charts/*.html
+!outputs/charts/.gitkeep
