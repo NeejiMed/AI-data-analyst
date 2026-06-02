@@ -9,6 +9,7 @@ logger = structlog.get_logger()
 settings = get_settings()
 engine = None
 
+
 class Base(DeclarativeBase):
     pass
 
