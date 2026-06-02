@@ -1,4 +1,5 @@
 """Integration tests for the FastAPI endpoints."""
+
 import os
 
 import pytest
@@ -14,11 +15,11 @@ from fastapi.testclient import TestClient  # noqa: E402
 def client():
     """Create a test client."""
     from app.main import app
+
     return TestClient(app)
 
 
 class TestHealthEndpoint:
-
     def test_health_returns_200(self, client):
         response = client.get("/health")
         assert response.status_code == 200
@@ -36,7 +37,6 @@ class TestHealthEndpoint:
 
 
 class TestMetricsEndpoint:
-
     def test_metrics_returns_200(self, client):
         response = client.get("/metrics")
         assert response.status_code == 200
@@ -50,7 +50,6 @@ class TestMetricsEndpoint:
 
 
 class TestRootEndpoint:
-
     def test_root_returns_200(self, client):
         response = client.get("/")
         assert response.status_code == 200
