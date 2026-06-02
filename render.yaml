@@ -1,0 +1,51 @@
+services:
+  - type: web
+    name: ai-data-analyst-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: GROQ_API_KEY
+        value: false
+      - key: LLM_MODEL
+        value: llama-3.3-70b-verstile
+      - key: LLM_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: EMBEDDING_MODEL
+        value: all-MiniLM-L6-v2
+      - key: DATABASE_URL
+        value: sqlite:///./data/analyst.db
+      - key: CHROMA_PERSIST_DIR
+        value: ./chroma_db
+      - key: SECRET_KEY
+        value: false
+    healthCheckPath: /health
+    autoDeploy: true
+
+  - type: web
+    name: ai-data-analyst-frontend
+    runtime: docker
+    dockerfilePath: ./docker/Dockerfile.streamlit
+    plan: free
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: GROQ_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        value: llama-3.3-70b-versatile
+      - key: LLM_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: EMBEDDING_MODEL
+        value: all-MiniLM-L6-v2
+      - key: DATABASE_URL
+        value: sqlite:///./data/analyst.db
+      - key: CHROMA_PERSIST_DIR
+        value: ./chroma_db
+      - key: SECRET_KEY
+        sync: false
+    autoDeploy: true
