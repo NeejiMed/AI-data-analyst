@@ -8,8 +8,10 @@ from app.core.config import get_settings
 logger = structlog.get_logger()
 settings = get_settings()
 
+
 class Base(DeclarativeBase):
     pass
+
 
 def get_engine():
     """
@@ -21,7 +23,7 @@ def get_engine():
             settings.database_url,
             connect_args={"check_same_thread": False},
             poolclass=StaticPool,
-            echo=settings.debug
+            echo=settings.debug,
         )
 
         # enable WAL mode for better concurrency in SQLite
@@ -38,18 +40,16 @@ def get_engine():
             pool_size=10,
             max_overflow=20,
             pool_pre_ping=True,
-            echo=settings.debug
+            echo=settings.debug,
         )
 
     return engine
 
+
 engine = get_engine()
 
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 def get_db():
     """

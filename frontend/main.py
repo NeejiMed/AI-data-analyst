@@ -2,6 +2,7 @@
 AI Data Analyst - Streamlit Frontend
 Main application entry point for the Streamlit interface.
 """
+
 import os
 import sys
 
@@ -26,7 +27,7 @@ st.set_page_config(
     page_title="AI Data Analyst",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
@@ -40,9 +41,11 @@ if "pending_question" not in st.session_state:
     st.session_state.pending_question = None
 if "db" not in st.session_state:
     from app.data.database import SessionLocal  # noqa: E402
+
     st.session_state.db = SessionLocal()
 if "workflow" not in st.session_state:
     from app.agents.workflow import AnalyticsWorkflow  # noqa: E402
+
     st.session_state.workflow = AnalyticsWorkflow(st.session_state.db)
 
 # Layout
@@ -60,23 +63,24 @@ if st.session_state.pending_question:
 # Process user question
 if question:
     # Add to chat history
-    st.session_state.chat_history.append({
-        "role": "user",
-        "content": question
-    })
+    st.session_state.chat_history.append({"role": "user", "content": question})
 
     # Run the analytics workflow
     with st.spinner("Analyzing your question..."):
         response = st.session_state.workflow.run(question)
-        response_dict = response.to_dict() # Convert to dict for easier handling
-        st.session_state.last_response = response_dict # Store the last response for rendering
+        response_dict = response.to_dict()  # Convert to dict for easier handling
+        st.session_state.last_response = (
+            response_dict  # Store the last response for rendering
+        )
 
     # Add response to chat history
     summary = response_dict.get("executive_summary", "")
-    st.session_state.chat_history.append({
-        "role": "assistant",
-        "content": summary[:500] + "..." if len(summary) > 500 else summary
-    })
+    st.session_state.chat_history.append(
+        {
+            "role": "assistant",
+            "content": summary[:500] + "..." if len(summary) > 500 else summary,
+        }
+    )
 
 # Chat history display
 if st.session_state.chat_history:
@@ -94,7 +98,9 @@ if response and response.get("success"):
     intent = response.get("intent", "")
     processing_ms = response.get("processing_time_ms", 0)
 
-    col1, col2, col3 = st.columns(3) # For intent, processing time, and report download link
+    col1, col2, col3 = st.columns(
+        3
+    )  # For intent, processing time, and report download link
     with col1:
         st.markdown(f"Intent: `{intent}`")
     with col2:
@@ -104,9 +110,9 @@ if response and response.get("success"):
 
     # Tabs for different result sections
     tab_labels = ["Summary", "Insights", "Charts", "Data", "Actions"]
-    tabs = st.tabs(tab_labels) # Create tabs for different sections of the response
+    tabs = st.tabs(tab_labels)  # Create tabs for different sections of the response
 
-    with tabs[0]: # Summary tab
+    with tabs[0]:  # Summary tab
         st.markdown("### Executive Summary")
         st.markdown(response.get("executive_summary", ""))
 
@@ -120,13 +126,13 @@ if response and response.get("success"):
             for risk in response["risk_factors"]:
                 st.markdown(f"- ⚠️ {risk}")
 
-    with tabs[1]: # Insights tab
+    with tabs[1]:  # Insights tab
         render_insights(response.get("insights", []))
 
-    with tabs[2]: # Charts tab
+    with tabs[2]:  # Charts tab
         render_charts(response.get("chart_paths", {}))
 
-    with tabs[3]: # Data tab
+    with tabs[3]:  # Data tab
         render_sql_result(response)
 
         if not response.get("sql_query"):
@@ -135,7 +141,7 @@ if response and response.get("success"):
                 "Ask a specific data question to see SQL results."
             )
 
-    with tabs[4]: # Actions tab
+    with tabs[4]:  # Actions tab
         render_recommendations(response.get("recommended_actions", []))
 
 elif response and not response.get("success"):
@@ -156,7 +162,7 @@ elif not st.session_state.chat_history:
         "Analyze monthly sales trends and explain anomalies",
         "Generate customer segmentation insights",
         "Why did revenue decrease in Q2?",
-        "What is the total revenue by product category?"
+        "What is the total revenue by product category?",
     ]
     for i, example in enumerate(examples):
         with cols[i % 2]:

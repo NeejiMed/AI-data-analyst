@@ -1,8 +1,9 @@
 """Test the full report generation pipeline."""
+
 import os
 import sys
 
-sys.stdout.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding="utf-8")
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from datetime import datetime  # noqa: E402
@@ -40,9 +41,7 @@ print(f"   KPIs computed, {len(result.anomalies)} anomalies detected")
 print("2. Generating RAG-augmented insights...")
 question = "Provide a comprehensive sales trend analysis"
 rag_context = rag.build_context(question)
-messages = build_insights_prompt(
-    result.to_llm_context(), question, rag_context
-)
+messages = build_insights_prompt(result.to_llm_context(), question, rag_context)
 raw = call_llm(messages, temperature=0.3, response_format="json")
 insights = parse_insights_response(raw)
 print(f"   Generated {len(insights.key_insights)} insights")

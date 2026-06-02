@@ -2,6 +2,7 @@
 Test the SQL generation agent with realistic business questions.
 Verifies both correct generation and security validation.
 """
+
 import os
 import sys
 

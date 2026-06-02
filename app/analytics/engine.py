@@ -3,6 +3,7 @@ Analytics engine — main entry point.
 Orchestrates KPI computation, trend analysis, anomaly detection,
 and segmentation into a single structured result.
 """
+
 from dataclasses import dataclass, field
 from datetime import datetime
 
@@ -30,11 +31,13 @@ from app.analytics.trends import (
 
 logger = structlog.get_logger()
 
+
 @dataclass
 class AnalyticsResult:
     """
     structured result returned by the analytics engine.
     """
+
     query_type: str
     period_start: datetime
     period_end: datetime
@@ -105,14 +108,14 @@ class AnalyticsResult:
             for q in self.quarterly_trends:
                 growth = (
                     f"{q.revenue_growth_pct:+.1f}%"
-                    if q.revenue_growth_pct is not None else "baseline"
+                    if q.revenue_growth_pct is not None
+                    else "baseline"
                 )
-                lines.append(
-                    f"- {q.quarter_label}: ${q.total_revenue:,.2f} ({growth})"
-                )
+                lines.append(f"- {q.quarter_label}: ${q.total_revenue:,.2f} ({growth})")
             lines.append("")
 
         return "\n".join(lines)
+
 
 class AnalyticsEngine:
     """
@@ -124,21 +127,20 @@ class AnalyticsEngine:
         self.db = db
 
     def analyze_sales_trends(
-        self,
-        start_date: datetime,
-        end_date: datetime
+        self, start_date: datetime, end_date: datetime
     ) -> AnalyticsResult:
-
-        logger.info("Workflow_running_sales_trends_analysis", start_date=start_date, end_date=end_date)
+        logger.info(
+            "Workflow_running_sales_trends_analysis",
+            start_date=start_date,
+            end_date=end_date,
+        )
 
         kpis = compute_revenue_kpis(self.db, start_date, end_date)
         monthly = compute_monthly_trends(self.db, start_date, end_date)
         quarterly = compute_quarterly_trends(self.db, start_date, end_date)
         regional = compute_regional_kpis(self.db, start_date, end_date)
 
-        monthly_revenues = [
-            (m.month_label, m.total_revenue) for m in monthly
-        ]
+        monthly_revenues = [(m.month_label, m.total_revenue) for m in monthly]
         anomalies = detect_revenue_anomalies(monthly_revenues)
         revenue_values = [m.total_revenue for m in monthly]
         stats = compute_summary_stats(revenue_values)
@@ -152,25 +154,25 @@ class AnalyticsEngine:
             monthly_trends=monthly,
             quarterly_trends=quarterly,
             anomalies=anomalies,
-            summary_stats=stats
+            summary_stats=stats,
         )
 
-    def analyze_customer_segments(
-        self,
-        reference_date: datetime
-    ) -> AnalyticsResult:
-        logger.info("Workflow_running_customer_segmentation_analysis", reference_date=reference_date)
+    def analyze_customer_segments(self, reference_date: datetime) -> AnalyticsResult:
+        logger.info(
+            "Workflow_running_customer_segmentation_analysis",
+            reference_date=reference_date,
+        )
 
         segments = compute_rfm_segments(self.db, reference_date)
         kpis = compute_revenue_kpis(
             self.db,
             datetime(reference_date.year - 1, reference_date.month, 1),
-            reference_date
+            reference_date,
         )
         return AnalyticsResult(
             query_type="Customer Segmentation Analysis",
-            period_start=datetime(reference_date.year - 1,1,1),
+            period_start=datetime(reference_date.year - 1, 1, 1),
             period_end=reference_date,
             revenue_kpis=kpis,
-            segments=segments
+            segments=segments,
         )

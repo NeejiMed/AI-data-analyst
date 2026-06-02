@@ -28,7 +28,10 @@ SYSTEM_SQL_ASSISTANT = """You are a precise SQL generation assistant.
 You write safe, read-only SELECT queries based on a given database schema.
 You never use DROP, DELETE, UPDATE, INSERT, or any data-modifying statements."""
 
-def build_insights_prompt(analytics_context: str, user_question: str, rag_context: str="") -> list[dict]:
+
+def build_insights_prompt(
+    analytics_context: str, user_question: str, rag_context: str = ""
+) -> list[dict]:
     """
     Build the message list for insights generation.
 
@@ -40,8 +43,9 @@ def build_insights_prompt(analytics_context: str, user_question: str, rag_contex
     returns:
     OpenAI-format messages list
     """
-    rag_section = f"\n**Business Domain Context:**\n{rag_context}\n" \
-        if rag_context else ""
+    rag_section = (
+        f"\n**Business Domain Context:**\n{rag_context}\n" if rag_context else ""
+    )
 
     return [
         {"role": "system", "content": SYSTEM_ANALYST},
@@ -74,9 +78,9 @@ def build_insights_prompt(analytics_context: str, user_question: str, rag_contex
         },
     ]
 
+
 def build_anomaly_explanation_prompt(
-        anomaly_context: str,
-        trend_context: str
+    anomaly_context: str, trend_context: str
 ) -> list[dict]:
     """
     Build prompt for explaining detected anomalies.
@@ -105,13 +109,13 @@ def build_anomaly_explanation_prompt(
                     }},
                 ],
                 "overall_pattern": "one paragraph describing the overall trend pattern"
-            }}"""
-        }
+            }}""",
+        },
     ]
 
+
 def build_summary_prompt(
-        analytics_context: str,
-        report_type: str = "executive"
+    analytics_context: str, report_type: str = "executive"
 ) -> list[dict]:
     """
     Build prompt for generating executive summary narratives.

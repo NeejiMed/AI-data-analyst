@@ -3,6 +3,7 @@ Reusable streamlit UI components.
 Each function renders one piece of the UI.
 Keeping components seperatte from page logic allows for better code organization and reusability.
 """
+
 from datetime import datetime
 
 import streamlit as st
@@ -18,10 +19,11 @@ def render_header():
         st.markdown(
             '<div style="text-align:right;padding-top:1rem">'
             '<span class="badge-success">System Online</span>'
-            '</div>',
-            unsafe_allow_html=True
+            "</div>",
+            unsafe_allow_html=True,
         )
     st.divider()
+
 
 def render_sidebar():
     """Render the sidebar with example questions and settings."""
@@ -32,8 +34,7 @@ def render_sidebar():
         st.divider()
 
         st.markdown(
-            '<p class="sidebar-header">Example Questions</p>',
-            unsafe_allow_html=True
+            '<p class="sidebar-header">Example Questions</p>', unsafe_allow_html=True
         )
 
         examples = [
@@ -43,21 +44,18 @@ def render_sidebar():
             "Compare regional performance",
             "What is the total revenue by product category?",
             "Show me the top 10 customers by spend",
-            "What percentage of orders were refunded?"
+            "What percentage of orders were refunded?",
         ]
 
         for example in examples:
             if st.button(
-                example,
-                key=f"example_{example[:20]}",
-                use_container_width=True
+                example, key=f"example_{example[:20]}", use_container_width=True
             ):
                 st.session_state.pending_question = example
 
         st.divider()
         st.markdown(
-            '<p class="sidebar-header">Session stats</p>',
-            unsafe_allow_html=True
+            '<p class="sidebar-header">Session stats</p>', unsafe_allow_html=True
         )
         query_count = len(st.session_state.get("chat_history", []))
         st.metric("Queries this session", query_count)
@@ -67,6 +65,7 @@ def render_sidebar():
             st.session_state.chat_history = []
             st.session_state.last_response = None
             st.rerun()
+
 
 def render_kpi_cards(response):
     """Render KPI metric cards based on the response."""
@@ -89,9 +88,10 @@ def render_kpi_cards(response):
                 f'<div class="kpi-card">'
                 f'<div class="kpi-value">{value}</div>'
                 f'<div class="kpi-label">{label}</div>'
-                f'</div>',
+                f"</div>",
                 unsafe_allow_html=True,
             )
+
 
 def render_insights(insights: list[dict]):
     """Render AI-generated insights as styled cards."""
@@ -108,9 +108,7 @@ def render_insights(insights: list[dict]):
 
     for insight in insights:
         severity = insight.get("severity", "info")
-        css_class, icon = severity_config.get(
-            severity, ("insight-info", "🟢")
-        )
+        css_class, icon = severity_config.get(severity, ("insight-info", "🟢"))
         st.markdown(
             f'<div class="insight-card {css_class}">'
             f'<strong>{icon} {insight.get("title", "")}</strong><br>'
@@ -119,6 +117,7 @@ def render_insights(insights: list[dict]):
             f'</div>',
             unsafe_allow_html=True,
         )
+
 
 def render_charts(chart_paths: dict):
     """Render Plotly charts from saved HTML files."""
@@ -134,13 +133,11 @@ def render_charts(chart_paths: dict):
         "regional_bar": "Revenue by Region",
         "regional_pie": "Revenue Market Share",
         "kpi_summary": "KPI Dashboard",
-        "segments": "Customer Segments"
+        "segments": "Customer Segments",
     }
 
     # Group charts in tabs for cleaner layout
-    available = [
-        (key, path) for key, path in chart_paths.items() if path.get("html")
-    ]
+    available = [(key, path) for key, path in chart_paths.items() if path.get("html")]
 
     if not available:
         st.info("Charts saved as files. Check output/charts/ directory.")
@@ -156,13 +153,10 @@ def render_charts(chart_paths: dict):
                 try:
                     with open(html_path, encoding="utf-8") as f:
                         html_html = f.read()
-                        st.components.v1.html(
-                            html_html,
-                            height=500,
-                            scrolling=False
-                        )
+                        st.components.v1.html(html_html, height=500, scrolling=False)
                 except FileNotFoundError:
                     st.warning(f"Chart file not found: {html_path}")
+
 
 def render_sql_result(response: dict):
     """Render SQL query results as a dataframe."""
@@ -176,11 +170,8 @@ def render_sql_result(response: dict):
 
     if response.get("sql_result"):
         st.markdown(f"**{response['sql_row_count']} rows returned**")
-        st.dataframe(
-            response["sql_result"],
-            use_container_width=True,
-            hide_index=True
-        )
+        st.dataframe(response["sql_result"], use_container_width=True, hide_index=True)
+
 
 def render_recommendations(actions: list[str]):
     """Render recommended actions as a clean list."""
@@ -190,6 +181,7 @@ def render_recommendations(actions: list[str]):
     st.markdown("### Recommended actions")
     for i, action in enumerate(actions, 1):
         st.markdown(f"**{i}.** {action}")
+
 
 def render_report_download(report_paths: dict):
     """Render download button for generated report."""
@@ -209,10 +201,11 @@ def render_report_download(report_paths: dict):
             data=content,
             file_name=f"analytics_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md",
             mime="text/markdown",
-            use_container_width=True
+            use_container_width=True,
         )
     except FileNotFoundError:
         pass  # File not found, likely due to an error in report generation. No download button rendered.
+
 
 def render_chat_message(role: str, content: str):
     """Render a single chat message."""
@@ -224,7 +217,7 @@ def render_chat_message(role: str, content: str):
     else:
         st.markdown(
             f'<div class="assistant-message">'
-            f'<strong>AI Analyst:</strong> {content}'
-            f'</div>',
+            f"<strong>AI Analyst:</strong> {content}"
+            f"</div>",
             unsafe_allow_html=True,
         )

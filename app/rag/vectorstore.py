@@ -2,6 +2,7 @@
 ChromaDB vector store wrapper.
 Handles document storage, indexing, and semantic retrieval.
 """
+
 import logging
 from pathlib import Path
 
@@ -19,6 +20,7 @@ settings = get_settings()
 
 COLLECTION_NAME = "business_knowledge"
 
+
 def get_chroma_client() -> chromadb.PersistentClient:
     """
     Return a persistent ChromaDB client.
@@ -28,23 +30,22 @@ def get_chroma_client() -> chromadb.PersistentClient:
     persist_path.mkdir(parents=True, exist_ok=True)
 
     client = chromadb.PersistentClient(
-        path=str(persist_path),
-        settings=ChromaSettings(anonymized_telemetry=False)
+        path=str(persist_path), settings=ChromaSettings(anonymized_telemetry=False)
     )
 
     return client
 
+
 def get_or_create_collection() -> chromadb.Collection:
     """Get existing collection or create if it doesn't exist."""
     client = get_chroma_client()
-    collection = client.get_or_create_collection(name=COLLECTION_NAME,metadata={"hnsw:space": "cosine"})
+    collection = client.get_or_create_collection(
+        name=COLLECTION_NAME, metadata={"hnsw:space": "cosine"}
+    )
     return collection
 
-def add_documents(
-        documents: list[str],
-        metadatas: list[dict],
-        ids: list[str]
-) -> None:
+
+def add_documents(documents: list[str], metadatas: list[dict], ids: list[str]) -> None:
     """
     Add documents to the vector store with their embeddings.
     Args:
@@ -69,19 +70,14 @@ def add_documents(
     embeddings = embed_texts(new_docs)
 
     collection.add(
-        documents=new_docs,
-        embeddings=embeddings,
-        metadatas=new_metas,
-        ids=new_ids
+        documents=new_docs, embeddings=embeddings, metadatas=new_metas, ids=new_ids
     )
 
     logger.info("documents_indexed", count=len(new_docs))
 
 
 def query_similar(
-        query_text: str,
-        n_results: int = 5,
-        where: dict | None = None
+    query_text: str, n_results: int = 5, where: dict | None = None
 ) -> list[dict]:
     """
     Retrive semantically similar documents for a query.
@@ -106,25 +102,26 @@ def query_similar(
         query_embeddings=[query_embedding],
         n_results=min(n_results, count),
         where=where,
-        include=["documents", "metadatas", "distances"]
+        include=["documents", "metadatas", "distances"],
     )
 
     output = []
     for i in range(len(results["ids"][0])):
-        output.append({
-            "id": results["ids"][0][i],
-            "document": results["documents"][0][i],
-            "metadata": results["metadatas"][0][i],
-            "score": results["distances"][0][i]
-        })
+        output.append(
+            {
+                "id": results["ids"][0][i],
+                "document": results["documents"][0][i],
+                "metadata": results["metadatas"][0][i],
+                "score": results["distances"][0][i],
+            }
+        )
 
     logger.info(
-        "retrieval_performed",
-        query_preview=query_text[:60],
-        results_found=len(output)
+        "retrieval_performed", query_preview=query_text[:60], results_found=len(output)
     )
 
     return output
+
 
 def get_collection_stats() -> dict:
     """Return stats about the vector store collection."""
@@ -133,5 +130,5 @@ def get_collection_stats() -> dict:
     return {
         "collection_name": COLLECTION_NAME,
         "document_count": count,
-        "persist_dir": settings.chroma_persist_dir
+        "persist_dir": settings.chroma_persist_dir,
     }

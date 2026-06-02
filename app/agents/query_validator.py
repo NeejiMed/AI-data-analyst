@@ -11,6 +11,7 @@ Attack vectors we defend against:
 4. Schema probing: queries against system tables
 5. Stacked queries: multiple statements in one call
 """
+
 import re
 
 import structlog
@@ -38,15 +39,18 @@ FORBIDDEN_TABLES = [
     "sqlite_sequence",
     "information_schema",
     "pg_catalog",
-    r"sys\."
+    r"sys\.",
 ]
 
 # Maximum rows we allow any query to return - prevents data dumps
 MAX_ROWS_LIMIT = 10_000
 
+
 class QueryValidationError(Exception):
     """Custom exception for query validation failures."""
+
     pass
+
 
 def validate_sql(sql: str) -> str:
     """
@@ -74,7 +78,9 @@ def validate_sql(sql: str) -> str:
 
     # Rule 1: Must start with SELECT
     if not re.match(r"^SELECT\b", sql, re.IGNORECASE):
-        raise QueryValidationError("Only SELECT statements are allowed. Got: " + sql[:50])
+        raise QueryValidationError(
+            "Only SELECT statements are allowed. Got: " + sql[:50]
+        )
 
     # Rule 2: No forbidden keywords in the query
     sql_upper = sql.upper()
@@ -86,11 +92,15 @@ def validate_sql(sql: str) -> str:
     # Rule 3: No queries against forbidden system tables
     for table in FORBIDDEN_TABLES:
         if re.search(rf"\b{table}\b", sql, re.IGNORECASE):
-            raise QueryValidationError(f"Querying system tables is not allowed: {table}")
+            raise QueryValidationError(
+                f"Querying system tables is not allowed: {table}"
+            )
 
     # Rule 4: No stacked statements (semicolon in the middle of the query)
     if ";" in sql:
-        raise QueryValidationError("Multiple statements detected. Only one statement is allowed.")
+        raise QueryValidationError(
+            "Multiple statements detected. Only one statement is allowed."
+        )
 
     # Rule 5: No subquery-based exfiltration patterns (e.g. SELECT * FROM (SELECT * FROM sensitive_table))
     # Catches UNION-based injection attempts as well

@@ -1,12 +1,14 @@
 """
 RAG pipeline, retrieves relevant context and formats it for LLM injection.
 """
+
 import structlog
 
 from app.rag.retrieval import ingest_knowledge_base
 from app.rag.vectorstore import get_collection_stats, query_similar
 
 logger = structlog.get_logger()
+
 
 class RAGPipeline:
     """
@@ -31,14 +33,13 @@ class RAGPipeline:
             logger.info("Vector_store_is_empty_Triggering_ingestion.")
             ingest_knowledge_base()
         else:
-            logger.info("Vector_store_already_populated", document_count=stats["document_count"])
+            logger.info(
+                "Vector_store_already_populated", document_count=stats["document_count"]
+            )
         self._ingested = True
 
     def retrieve(
-            self,
-            query: str,
-            n_results: int = 4,
-            category_filter: str | None = None
+        self, query: str, n_results: int = 4, category_filter: str | None = None
     ) -> list[dict]:
         """
         Retrieve relevant knowledge chunks for a user query.
@@ -50,12 +51,8 @@ class RAGPipeline:
         where = {"category": category_filter} if category_filter else None
         return query_similar(query, n_results=n_results, where=where)
 
-    def build_context(
-            self,
-            query: str,
-            n_results: int = 4
-    ) -> str:
-        """"
+    def build_context(self, query: str, n_results: int = 4) -> str:
+        """ "
         Retrieve and format knowledge base context for LLM injection.
         Returns:
             Formatted string ready to inject into LLM prompts
@@ -68,7 +65,7 @@ class RAGPipeline:
             "RELEVANT BUSINESS CONTEXT:",
             "=" * 30,
             "The following domain knowledge is relevant to this query:",
-            ""
+            "",
         ]
 
         for i, result in enumerate(results, 1):

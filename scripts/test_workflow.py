@@ -1,7 +1,7 @@
 import os
 import sys
 
-sys.stdout.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding="utf-8")
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.agents.workflow import AnalyticsWorkflow  # noqa: E402

@@ -2,6 +2,7 @@
 Markdown report renderer.
 Converts a Report object into a clean Markdown document.
 """
+
 from pathlib import Path
 
 import structlog
@@ -9,6 +10,7 @@ import structlog
 from app.reports.templates import Report, ReportSection, SectionType
 
 logger = structlog.get_logger()
+
 
 class MarkdownRenderer:
     """Renders a Report object into Markdown document."""
@@ -26,18 +28,18 @@ class MarkdownRenderer:
             f"**Generated:** {report.generated_at.strftime('%B %d, %Y at %H:%M')}",
             "",
             "---",
-            ""
+            "",
         ]
 
         # Render each section
         for section in sorted(report.sections, key=lambda s: s.order):
             lines += self._render_section(section)
-            lines.append("") # Add spacing between sections
+            lines.append("")  # Add spacing between sections
 
         return "\n".join(lines)
 
     def _render_section(self, section: ReportSection) -> list[str]:
-        """Render a single section """
+        """Render a single section"""
         lines = [f"## {section.title}", ""]
 
         if section.type == SectionType.SUMMARY:
@@ -50,7 +52,7 @@ class MarkdownRenderer:
             SectionType.METRICS_TABLE,
             SectionType.TREND_TABLE,
             SectionType.ANOMALY_TABLE,
-            SectionType.SEGMENT_TABLE
+            SectionType.SEGMENT_TABLE,
         ):
             lines += self._render_table(section.content)
 
@@ -65,7 +67,7 @@ class MarkdownRenderer:
     def _render_table(self, rows: list[dict]) -> list[str]:
         """Render a list of dicts as a Markdown table."""
         if not rows:
-            return ["*No data available*",""]
+            return ["*No data available*", ""]
 
         headers = list(rows[0].keys())
         lines = []
@@ -79,17 +81,13 @@ class MarkdownRenderer:
             values = [str(row.get(h, "")) for h in headers]
             lines.append("| " + " | ".join(values) + " |")
 
-        lines.append("") # Add spacing after table
+        lines.append("")  # Add spacing after table
         return lines
 
     def _render_insights(self, insights: list[dict]) -> list[str]:
         """Render a list of insights as Markdown."""
         lines = []
-        severity_icons = {
-            "critical": "🔴",
-            "warning": "🟡",
-            "info": "🟢"
-        }
+        severity_icons = {"critical": "🔴", "warning": "🟡", "info": "🟢"}
 
         for insight in insights:
             icon = severity_icons.get(insight.get("severity", "info").lower(), "🟢")
@@ -110,10 +108,10 @@ class MarkdownRenderer:
         for i, action in enumerate(actions, 1):
             lines.append(f"{i}. {action}")
 
-        lines.append("") # Add spacing after list
+        lines.append("")  # Add spacing after list
         return lines
 
-    def save(self, report: Report, output_dir: str="outputs/reports") -> str:
+    def save(self, report: Report, output_dir: str = "outputs/reports") -> str:
         """
         Save the rendered Markdown report to a file.
         Returns the path to the saved file.

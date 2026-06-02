@@ -1,7 +1,7 @@
 import os
 import sys
 
-sys.stdout.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding="utf-8")
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from datetime import datetime  # noqa: E402
@@ -34,9 +34,7 @@ for name, data in charts.items():
 
 # Segmentation charts
 print("\n2. Generating segmentation charts...")
-seg_result = analytics.analyze_customer_segments(
-    reference_date=datetime(2026, 6, 30)
-)
+seg_result = analytics.analyze_customer_segments(reference_date=datetime(2026, 6, 30))
 seg_charts = viz.generate_segmentation_charts(seg_result)
 
 for name, data in seg_charts.items():

@@ -2,6 +2,7 @@
 Document ingestion, chuncks knowledge base files and indexes them.
 Run once to populate the vector store, then periodically to add new documents.
 """
+
 import re
 from pathlib import Path
 
@@ -12,6 +13,7 @@ from app.rag.vectorstore import add_documents, get_collection_stats
 logger = structlog.get_logger()
 
 KNOWLEDGE_BASE_DIR = Path(__file__).parent / "knowledge_base"
+
 
 def _categorize(source: str) -> str:
     """Infer document category from filename."""
@@ -25,10 +27,7 @@ def _categorize(source: str) -> str:
 
 
 def chunk_markdown(
-        text: str,
-        source: str,
-        chunk_size: int = 400,
-        overlap: int = 50
+    text: str, source: str, chunk_size: int = 400, overlap: int = 50
 ) -> list[tuple[str, dict]]:
     """
     Split markdown text into overlapping chunks for indexing.
@@ -58,29 +57,34 @@ def chunk_markdown(
         words = current_text.split()
         while len(words) > chunk_size:
             chunk = " ".join(words[:chunk_size])
-            chunks.append((
-                chunk,
-                {
-                    "source": source,
-                    "section": current_section,
-                    "category": _categorize(source)
-                }
-            ))
+            chunks.append(
+                (
+                    chunk,
+                    {
+                        "source": source,
+                        "section": current_section,
+                        "category": _categorize(source),
+                    },
+                )
+            )
             words = words[overlap:]  # keep some overlap for context
         current_text = " ".join(words)
 
     # Add any remaining text as a final chunk
     if current_text.strip():
-        chunks.append((
-            current_text.strip(),
-            {
-                "source": source,
-                "section": current_section,
-                "category": _categorize(source)
-            }
-        ))
+        chunks.append(
+            (
+                current_text.strip(),
+                {
+                    "source": source,
+                    "section": current_section,
+                    "category": _categorize(source),
+                },
+            )
+        )
 
     return chunks
+
 
 def ingest_knowledge_base() -> int:
     """
@@ -119,5 +123,9 @@ def ingest_knowledge_base() -> int:
     add_documents(all_docs, all_metas, all_ids)
     stats = get_collection_stats()
 
-    logger.info("knowledge_base_ingestion_complete", total_chunks=len(all_docs), indexed=stats["document_count"])
+    logger.info(
+        "knowledge_base_ingestion_complete",
+        total_chunks=len(all_docs),
+        indexed=stats["document_count"],
+    )
     return len(all_docs)

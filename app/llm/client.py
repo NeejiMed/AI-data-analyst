@@ -2,6 +2,7 @@
 LLM client — wraps the Groq API using the OpenAI-compatible interface.
 Handles retries, timeouts, and error normalization.
 """
+
 import time
 
 import structlog
@@ -18,28 +19,30 @@ from app.core.config import get_settings
 logger = structlog.get_logger()
 settings = get_settings()
 
+
 def get_llm_client() -> OpenAI:
     """
     Returns an openai-compatible client pointed at the Groq API.
     Using the OpenAI SDK against Groq's API means 0 vendor lock-in - swapping to openai or anthropic
     requires two config values, not rewriting all the code that calls the client.
     """
-    return OpenAI(
-        api_key=settings.groq_api_key,
-        base_url=settings.llm_base_url
-    )
+    return OpenAI(api_key=settings.groq_api_key, base_url=settings.llm_base_url)
+
 
 @retry(
     stop=stop_after_attempt(3),
-    wait = wait_exponential(multiplier=1, min=2, max=10),# exponential backoff: 2s, 4s, 8s
-    retry=retry_if_exception_type(Exception) # catch all exceptions, can be refined to specific
+    wait=wait_exponential(
+        multiplier=1, min=2, max=10
+    ),  # exponential backoff: 2s, 4s, 8s
+    retry=retry_if_exception_type(
+        Exception
+    ),  # catch all exceptions, can be refined to specific
 )
-
 def call_llm(
     messages: list[dict],
     temperature: float = 0.3,
     max_tokens: int = 1500,
-    response_format: str = "text" # or "json"
+    response_format: str = "text",  # or "json"
 ) -> str:
     """
     Core LLM call with automatic retry on failure
@@ -60,14 +63,14 @@ def call_llm(
         "llm_call_start",
         model=settings.llm_model,
         temperature=temperature,
-        message_count=len(messages)
+        message_count=len(messages),
     )
 
     kwargs = {
         "model": settings.llm_model,
         "messages": messages,
         "temperature": temperature,
-        "max_tokens": max_tokens
+        "max_tokens": max_tokens,
     }
 
     if response_format == "json":
@@ -80,6 +83,7 @@ def call_llm(
 
     # Record metrics
     from app.core.observability.metrics import record_llm_call
+
     record_llm_call(
         model=settings.llm_model,
         prompt_tokens=usage.prompt_tokens,
@@ -91,7 +95,7 @@ def call_llm(
     logger.info(
         "llm_call_complete",
         prompt_tokens=usage.prompt_tokens,
-        total_tokens=usage.total_tokens
+        total_tokens=usage.total_tokens,
     )
 
     return content

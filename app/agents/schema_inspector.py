@@ -6,11 +6,13 @@ if we hardcode the schema in a prompt, it drifts from reality as the databse
 envolves. By extracting the schema at runtime, the LLM always has the current,
 accurate schema. It cannot hallucinate tables or columns that don't exist, which reduces the risk of generating invalid SQL queries.
 """
+
 import structlog
 from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
 
 logger = structlog.get_logger()
+
 
 def get_schema_context(db: Session) -> str:
     """
@@ -25,7 +27,7 @@ def get_schema_context(db: Session) -> str:
         "==" * 30,
         "The following tables and columns exist in the database.",
         "Only reference these exact table and column names in your SQL queries.",
-        ""
+        "",
     ]
 
     for table in tables:
@@ -35,10 +37,8 @@ def get_schema_context(db: Session) -> str:
         schema_lines.append(f"Table: {table}")
         schema_lines.append(" Columns:")
         for col in columns:
-            nullable = "nullable" if col['nullable'] else "required"
-            schema_lines.append(
-                f"  - {col['name']} ({col['type']}, {nullable})"
-            )
+            nullable = "nullable" if col["nullable"] else "required"
+            schema_lines.append(f"  - {col['name']} ({col['type']}, {nullable})")
 
         if foreign_keys:
             schema_lines.append(" Relationships:")
@@ -60,19 +60,20 @@ def get_schema_context(db: Session) -> str:
         "orders.region": "SELECT DISTINCT region FROM orders",
         "orders.sales_channel": "SELECT DISTINCT sales_channel FROM orders",
         "customers.segment": "SELECT DISTINCT segment FROM customers",
-        "products.category": "SELECT DISTINCT category FROM products"
+        "products.category": "SELECT DISTINCT category FROM products",
     }
 
     for label, query in categorical_queries.items():
         try:
             result = db.execute(text(query))
-            values =[str(row[0]) for row in result if row[0]]
+            values = [str(row[0]) for row in result if row[0]]
             schema_lines.append(f"  {label}: {', '.join(values)}")
         except Exception as e:
             logger.warning(f"Failed to fetch sample values for {label}: {e}")
 
     logger.info("schema_extracted", table_count=len(tables))
     return "\n".join(schema_lines)
+
 
 def get_table_row_counts(db: Session) -> dict[str, int]:
     """Returns row counts per table, this is useful for query planning."""

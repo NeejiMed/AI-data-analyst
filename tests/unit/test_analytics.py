@@ -41,12 +41,13 @@ class TestAnomalyDetection:
 
     def test_anomaly_severity_levels(self):
         """High z-score should produce high severity anomalies."""
-        data = [("Month "+ str(i), 100_000) for i in range(10)] # stable data
-        data.append(("Month 10", 900_000)) # extreme spike
+        data = [("Month " + str(i), 100_000) for i in range(10)]  # stable data
+        data.append(("Month 10", 900_000))  # extreme spike
         anomalies = detect_revenue_anomalies(data, z_threshold=1.5)
         spike = next((a for a in anomalies if a.direction == "spike"), None)
         assert spike is not None
         assert spike.severity in ["low", "medium", "high"]
+
 
 class TestSummaryStats:
     def test_basic_stats(self):
