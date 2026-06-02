@@ -1,0 +1,98 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+env:
+  PYTHON_VERSION: "3.11.9"
+
+jobs:
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install ruff
+        run: pip install ruff==0.6.5
+
+      - name: Run ruff linter
+        run: ruff check .
+
+      - name: Run ruff formatter
+        run: ruff format --check .
+
+  test:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+    needs: lint
+
+    env:
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      APP_ENV: test
+      DEBUG: "false"
+      DATABASE_URL: sqlite:///./data/test.db
+      CHROMA_PERSIST_DIR: ./chroma_db_test
+      SECRET_KEY: test-secret-key-for-ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create data directory
+        run: mkdir -p data
+
+      - name: Run unit tests
+        run: pytest tests/unit/ -v --tb=short
+
+      - name: Run integration tests
+        run: pytest tests/integration/ -v --tb=short
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: .pytest_cache/
+
+  docker:
+    name: Docker Build Check
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t ai-data-analyst:ci .
+
+      - name: Verify health endpoint starts
+        run: |
+          docker run -d \
+            --name test-container \
+            -p 8000:8000 \
+            -e GROQ_API_KEY=test-key \
+            -e APP_ENV=test \
+            -e SECRET_KEY=test-secret \
+            -e DATABASE_URL=sqlite:///./data/test.db \
+            -e CHROMA_PERSIST_DIR=./chroma_db \
+            ai-data-analyst:ci
+          sleep 5
+          curl -f http://localhost:8000/health || exit 1
+          docker stop test-container
