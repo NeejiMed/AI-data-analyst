@@ -5,7 +5,7 @@ import sys
 from datetime import datetime
 
 from app.analytics.engine import AnalyticsEngine
-from app.data.database import SessionLocal
+from app.data.database import session_local
 from app.llm.client import call_llm
 from app.llm.parser import parse_insights_response
 from app.llm.prompts import build_insights_prompt
@@ -51,7 +51,7 @@ print("\n" + "=" * 60)
 print("4. Full RAG-augmented insight generation...")
 print("=" * 60)
 
-db = SessionLocal()
+db = session_local()
 analytics = AnalyticsEngine(db)
 result = analytics.analyze_sales_trends(
     start_date=datetime(2025, 1, 1),

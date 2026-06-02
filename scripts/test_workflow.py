@@ -5,9 +5,9 @@ sys.stdout.reconfigure(encoding="utf-8")
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.agents.workflow import AnalyticsWorkflow  # noqa: E402
-from app.data.database import SessionLocal  # noqa: E402
+from app.data.database import session_local  # noqa: E402
 
-db = SessionLocal()
+db = session_local()
 workflow = AnalyticsWorkflow(db)
 
 test_questions = [

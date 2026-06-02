@@ -8,13 +8,13 @@ import sys
 from datetime import datetime
 
 from app.analytics.engine import AnalyticsEngine
-from app.data.database import SessionLocal
+from app.data.database import session_local
 from app.llm.insights import InsightsService
 
 sys.stdout.reconfigure(encoding="utf-8")
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-db = SessionLocal()
+db = session_local()
 analytics = AnalyticsEngine(db)
 insights_service = InsightsService()
 

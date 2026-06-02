@@ -8,9 +8,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from datetime import datetime
 
 from app.analytics.engine import AnalyticsEngine
-from app.data.database import SessionLocal
+from app.data.database import session_local
 
-db = SessionLocal()
+db = session_local()
 engine = AnalyticsEngine(db)
 
 print("=== Sales Trend Analysis ===")

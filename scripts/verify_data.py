@@ -7,10 +7,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy import func
 
-from app.data.database import SessionLocal
+from app.data.database import session_local
 from app.data.models.business import Customer, Order, OrderItem, Product, SalesMetric
 
-db = SessionLocal()
+db = session_local()
 
 print("=== Database Verification ===")
 print(f"Customers:    {db.query(func.count(Customer.id)).scalar()}")

@@ -7,14 +7,14 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from datetime import datetime  # noqa: E402
 
 from app.analytics.engine import AnalyticsEngine  # noqa: E402
-from app.data.database import SessionLocal  # noqa: E402
+from app.data.database import session_local  # noqa: E402
 from app.visualization.engine import VisualizationEngine  # noqa: E402
 
 print("=" * 60)
 print("VISUALIZATION ENGINE TEST")
 print("=" * 60)
 
-db = SessionLocal()
+db = session_local()
 analytics = AnalyticsEngine(db)
 viz = VisualizationEngine()
 
