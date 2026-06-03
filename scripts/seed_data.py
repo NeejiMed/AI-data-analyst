@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
 
-from app.data.database import Base, engine, session_local
+from app.data.database import Base, get_engine, session_local
 from app.data.models.business import Customer, Order, OrderItem, Product, SalesMetric
 
 random.seed(42)  # for reproducibility
@@ -83,7 +83,7 @@ CUSTOMER_NAMES = [
 
 
 def create_tables():
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=get_engine())
     print("✓ Tables created successfully.")
 
 
